@@ -142,7 +142,7 @@ function tick(): void {
 // À appeler une seule fois, avant startGameLoop(), lors de l'initialisation.
 // ---------------------------------------------------------------------------
 
-export function applyOfflineProgress(): void {
+export function applyOfflineProgress(opts: Pick<LoopCallbacks, 'onOfflineProgress'> = {}): void {
   const store = useGameStore.getState();
   const now = Date.now();
   const { lastTickAt, cycleDuration, gamePhase } = store;
@@ -163,7 +163,7 @@ export function applyOfflineProgress(): void {
     store.processCycle();
   }
 
-  callbacks.onOfflineProgress?.(cyclesReplayed, offlineSec);
+  opts.onOfflineProgress?.(cyclesReplayed, offlineSec);
 }
 
 // ---------------------------------------------------------------------------

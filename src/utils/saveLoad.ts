@@ -152,6 +152,17 @@ function isValidPersistedState(obj: unknown): obj is PersistedState {
   if (typeof obj !== 'object' || obj === null) return false;
 
   const s = obj as Record<string, unknown>;
+
+  // Les champs critiques doivent être présents dans le raw (pas comblés par les defaults)
+  const hasCriticalFields =
+    'relations'            in s &&
+    'totalRelationsEarned' in s &&
+    'gamePhase'            in s &&
+    'acceptanceRate'       in s &&
+    'cycleDuration'        in s;
+
+  if (!hasCriticalFields) return false;
+
   const normalized = normalizePersistedState(s);
   if (!normalized) return false;
 
