@@ -145,7 +145,7 @@ export function getSaveMetadata(): SaveMetadata | null {
   const s = data.state ?? {};
   return {
     version:              data.version           ?? 0,
-    savedAt:              (s as Record<string, unknown>).savedAt as number | null ?? null,
+    savedAt:              (data as unknown as Record<string, unknown>).savedAt as number | null ?? null,
     relations:            (s as PersistedState).relations            ?? 0,
     totalRelationsEarned: (s as PersistedState).totalRelationsEarned ?? 0,
     gamePhase:            (s as PersistedState).gamePhase            ?? 'playing',
