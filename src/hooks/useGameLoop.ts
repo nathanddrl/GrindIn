@@ -26,6 +26,5 @@ export function useGameLoop(callbacks: LoopCallbacks = {}): void {
     });
 
     return stopGameLoop;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // intentionnellement vide : la boucle ne se relance pas entre renders
 }

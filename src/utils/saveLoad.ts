@@ -210,7 +210,7 @@ export function loadGame(): LoadResult {
 
   const { data } = entry;
   const storedVersion = data.version ?? 0;
-  const savedAt = (data as Record<string, unknown>).savedAt as number | null ?? Date.now();
+  const savedAt = (data as unknown as Record<string, unknown>).savedAt as number | null ?? Date.now();
 
   // Migration si nécessaire
   let state: PersistedState;
