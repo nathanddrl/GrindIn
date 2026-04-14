@@ -92,21 +92,81 @@ function applyMigrations(raw: unknown, fromVersion: number): PersistedState {
   return state as PersistedState;
 }
 
+function getPersistedStateDefaults(): Record<string, unknown> {
+  const currentState = useGameStore.getState() as Record<string, unknown>;
+  const defaults: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(currentState)) {
+    if (typeof value !== 'function') {
+      defaults[key] = value;
+    }
+  }
+
+  return defaults;
+}
+
+function normalizePersistedState(raw: unknown): PersistedState | null {
+  if (typeof raw !== 'object' || raw === null) return null;
+
+  const candidate = raw as Record<string, unknown>;
+  const defaults = getPersistedStateDefaults();
+  const normalized: Record<string, unknown> = { ...defaults };
+
+  for (const [key, defaultValue] of Object.entries(defaults)) {
+    if (!(key in candidate)) continue;
+
+    const value = candidate[key];
+
+    if (defaultValue === null) {
+      if (value === null || value !== undefined) normalized[key] = value;
+      continue;
+    }
+
+    if (Array.isArray(defaultValue)) {
+      if (Array.isArray(value)) normalized[key] = value;
+      continue;
+    }
+
+    if (typeof defaultValue === 'object') {
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        normalized[key] = value;
+      }
+      continue;
+    }
+
+    if (typeof value === typeof defaultValue) {
+      normalized[key] = value;
+    }
+  }
+
+  return normalized as PersistedState;
+}
+
 // ---------------------------------------------------------------------------
 // VALIDATION MINIMALE
 // Vérifie que les champs critiques sont présents et bien typés.
+// Normalise aussi les champs persistés manquants avec des valeurs par défaut.
 // ---------------------------------------------------------------------------
 
 function isValidPersistedState(obj: unknown): obj is PersistedState {
   if (typeof obj !== 'object' || obj === null) return false;
+
   const s = obj as Record<string, unknown>;
-  return (
-    typeof s.relations            === 'number' &&
-    typeof s.totalRelationsEarned === 'number' &&
-    typeof s.gamePhase            === 'string' &&
-    typeof s.acceptanceRate       === 'number' &&
-    typeof s.cycleDuration        === 'number'
-  );
+  const normalized = normalizePersistedState(s);
+  if (!normalized) return false;
+
+  const n = normalized as Record<string, unknown>;
+  const isValid =
+    typeof n.relations            === 'number' &&
+    typeof n.totalRelationsEarned === 'number' &&
+    typeof n.gamePhase            === 'string' &&
+    typeof n.acceptanceRate       === 'number' &&
+    typeof n.cycleDuration        === 'number';
+
+  if (!isValid) return false;
+
+  Object.assign(s, normalized);
+  return true;
 }
 
 // ---------------------------------------------------------------------------
