@@ -93,7 +93,7 @@ function applyMigrations(raw: unknown, fromVersion: number): PersistedState {
 }
 
 function getPersistedStateDefaults(): Record<string, unknown> {
-  const currentState = useGameStore.getState() as Record<string, unknown>;
+  const currentState = useGameStore.getState() as unknown as Record<string, unknown>;
   const defaults: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(currentState)) {
@@ -139,7 +139,7 @@ function normalizePersistedState(raw: unknown): PersistedState | null {
     }
   }
 
-  return normalized as PersistedState;
+  return normalized as unknown as PersistedState;
 }
 
 // ---------------------------------------------------------------------------
@@ -166,7 +166,7 @@ function isValidPersistedState(obj: unknown): obj is PersistedState {
   const normalized = normalizePersistedState(s);
   if (!normalized) return false;
 
-  const n = normalized as Record<string, unknown>;
+  const n = normalized as unknown as Record<string, unknown>;
   const isValid =
     typeof n.relations            === 'number' &&
     typeof n.totalRelationsEarned === 'number' &&
