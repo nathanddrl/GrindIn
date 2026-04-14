@@ -81,9 +81,20 @@ function tick(): void {
     // Premier tick : armer le cycle sans le déclencher
     store.updateTimestamps(now, { lastCycleAt: now });
   } else if (!store.isBanned && now - store.lastCycleAt >= cycleMs) {
-    const result = store.processCycle();
-    store.updateTimestamps(now, { lastCycleAt: now });
-    callbacks.onCycle?.(result, now);
+    const cyclesDue = Math.min(
+      Math.floor((now - store.lastCycleAt) / cycleMs),
+      10, // plafond anti-freeze si gros lag
+    );
+    let lastResult: CycleResult | null = null;
+    for (let i = 0; i < cyclesDue; i++) {
+      lastResult = store.processCycle();
+    }
+    // Avancer lastCycleAt du nombre exact de cycles joués (pas "= now")
+    // pour conserver le reliquat et ne pas décaler le prochain cycle.
+    store.updateTimestamps(now, {
+      lastCycleAt: store.lastCycleAt + cyclesDue * cycleMs,
+    });
+    if (lastResult) callbacks.onCycle?.(lastResult, now);
   }
 
   // --- Demandes entrantes (clicker secondaire) ---
