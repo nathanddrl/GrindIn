@@ -150,4 +150,39 @@ describe('connectionsSlice', () => {
     store.getState().setRequestsProcessedPerCycle(25);
     expect(store.getState().requestsProcessedPerCycle).toBe(25);
   });
+
+  // ---------------------------------------------------------------------------
+  // acceptIncomingRequest
+  // ---------------------------------------------------------------------------
+
+  it('acceptIncomingRequest retourne false si incomingRequests = 0', () => {
+    const ok = store.getState().acceptIncomingRequest();
+    expect(ok).toBe(false);
+    expect(store.getState().relations).toBe(0);
+  });
+
+  it('acceptIncomingRequest décrémente incomingRequests et ajoute 1 relation', () => {
+    store.getState().addIncomingRequests(3);
+    const ok = store.getState().acceptIncomingRequest();
+    expect(ok).toBe(true);
+    expect(store.getState().incomingRequests).toBe(2);
+    expect(store.getState().relations).toBe(1);
+    expect(store.getState().totalRelationsEarned).toBe(1);
+  });
+
+  it('acceptIncomingRequest ne peut pas descendre en dessous de 0', () => {
+    store.getState().addIncomingRequests(1);
+    store.getState().acceptIncomingRequest();
+    const ok = store.getState().acceptIncomingRequest();
+    expect(ok).toBe(false);
+    expect(store.getState().incomingRequests).toBe(0);
+    expect(store.getState().relations).toBe(1);
+  });
+
+  it('acceptIncomingRequest incrémente totalRelationsEarned', () => {
+    store.getState().addIncomingRequests(2);
+    store.getState().acceptIncomingRequest();
+    store.getState().acceptIncomingRequest();
+    expect(store.getState().totalRelationsEarned).toBe(2);
+  });
 });

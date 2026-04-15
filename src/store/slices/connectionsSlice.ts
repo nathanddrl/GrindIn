@@ -29,6 +29,12 @@ export interface ConnectionsActions {
   /** Ajoute des demandes reçues (clicker secondaire). */
   addIncomingRequests: (count: number) => void;
 
+  /**
+   * Accepte 1 demande reçue → +1 relation directement (hors cycle).
+   * Retourne `true` si une demande était disponible, `false` sinon.
+   */
+  acceptIncomingRequest: () => boolean;
+
   /** Traite un cycle : accepte/rejette les demandes en attente, crédite les relations. */
   processCycle: () => CycleResult;
 
@@ -80,6 +86,16 @@ export const createConnectionsSlice: StateCreator<
 
   addIncomingRequests: (count) =>
     set((s) => ({ incomingRequests: s.incomingRequests + count })),
+
+  acceptIncomingRequest: () => {
+    if (get().incomingRequests <= 0) return false;
+    set((s) => ({
+      incomingRequests:     s.incomingRequests - 1,
+      relations:            s.relations + 1,
+      totalRelationsEarned: s.totalRelationsEarned + 1,
+    }));
+    return true;
+  },
 
   processCycle: () => {
     const { pendingRequests, requestsProcessedPerCycle, acceptanceRate } = get();
