@@ -18,7 +18,7 @@ GrindIn est un **idle/clicker game** qui parodie l'obsession LinkedIn et la cult
 | Couche | Technologie |
 |--------|-------------|
 | Language | TypeScript ~6.0 (strict, zéro `any`) |
-| UI | React 18 |
+| UI | React 19 |
 | State | Zustand 5 |
 | Build | Vite 8 |
 | Styling | Tailwind CSS 4 |
@@ -143,4 +143,4 @@ L'autoclicker est une récompense tardive (débloqué au palier 5) avec un vrai 
 
 ---
 
-*Stack : TypeScript + React 18 + Zustand 5 + Vite 8 + Tailwind CSS 4. Zéro backend. 100% offline-capable.*
+*Stack : TypeScript + React 19 + Zustand 5 + Vite 8 + Tailwind CSS 4. Zéro backend. 100% offline-capable.*
