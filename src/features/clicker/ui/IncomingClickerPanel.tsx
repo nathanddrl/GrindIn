@@ -2,6 +2,7 @@
 // Clicker secondaire — demandes reçues en attente + bouton Accepter.
 
 import React, { useState, useCallback } from 'react';
+import { Tooltip } from '../../../components/Tooltip';
 import { useGameStore } from '../../../store/useGameStore';
 import { selectCanClick } from '../../../store/useGameStore';
 import { handleAcceptIncoming, computeIncomingIntervalSeconds } from '../logic/incomingClickerLogic';
@@ -27,11 +28,13 @@ export function IncomingClickerPanel(): React.ReactElement {
     <div className="flex flex-col gap-3 p-4 rounded-lg bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.15),0_2px_3px_rgba(0,0,0,0.2)]">
       {/* En-tête */}
       <div className="flex items-center justify-between">
-        <span className="text-[16px] font-semibold text-[#000000E6]">
+        <span className="text-[16px] font-semibold text-[#000000E6] flex items-center gap-1">
           Demandes reçues
+          <Tooltip text="Des profils veulent te rejoindre. Valide-les pour gagner du réseau tout de suite." position="bottom" />
         </span>
-        <span className="text-[12px] text-[#00000099]">
+        <span className="text-[12px] text-[#00000099] flex items-center gap-1">
           +1 toutes les {intervalSec.toFixed(0)}s
+          <Tooltip text="Plus ton acceptation monte, plus ça arrive vite." position="bottom" />
         </span>
       </div>
 

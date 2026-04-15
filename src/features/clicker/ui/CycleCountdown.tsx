@@ -2,6 +2,7 @@
 // Barre de progression + secondes restantes jusqu'au prochain cycle.
 
 import React from 'react';
+import { Tooltip } from '../../../components/Tooltip';
 import { useGameStore } from '../../../store/useGameStore';
 
 export function CycleCountdown(): React.ReactElement {
@@ -26,11 +27,15 @@ export function CycleCountdown(): React.ReactElement {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
-        <span className="text-[12px] text-[#00000099]">Cycle de traitement</span>
+        
         <span className="text-[12px] text-[#00000099]">{label}</span>
+          <Tooltip text="Le moment où le jeu trie tes demandes envoyées." />
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-[12px] text-[#00000099]">Demandes traitées/cycle</span>
+        <span className="text-[12px] text-[#00000099] flex items-center gap-1">
+          Demandes traitées/cycle
+          <Tooltip text="Combien de profils passent à la fois." />
+        </span>
         <span className="text-[12px] font-semibold text-[#000000E6]">{requestsProcessedPerCycle}</span>
       </div>
 

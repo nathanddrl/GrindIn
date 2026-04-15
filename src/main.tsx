@@ -5,10 +5,15 @@ import App from './App.tsx'
 import { useGameStore } from './store/useGameStore'
 import * as saveLoad from './utils/saveLoad'
 
+type DevWindow = Window & {
+  useGameStore?: typeof useGameStore
+  saveLoad?: typeof saveLoad
+}
+
 if (import.meta.env.DEV) {
-  const w = window as unknown as Record<string, unknown>;
-  w.useGameStore = useGameStore;
-  w.saveLoad = saveLoad;
+  const devWindow: DevWindow = window
+  devWindow.useGameStore = useGameStore
+  devWindow.saveLoad = saveLoad
 }
 
 createRoot(document.getElementById('root')!).render(

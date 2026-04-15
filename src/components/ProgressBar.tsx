@@ -12,19 +12,19 @@ export function ProgressBar({ value, max, label, className = '' }: ProgressBarPr
     <div className={`w-full ${className}`}>
       {label && (
         <div className="flex justify-between mb-1">
-          <span className="text-xs font-semibold text-[#000000E6]">{label}</span>
-          <span className="text-xs text-[#00000099]">{Math.round(percent)}%</span>
+          <span className="text-xs font-semibold text-[var(--linkedin-text)]">{label}</span>
+          <span className="text-xs text-[var(--linkedin-muted)]">{Math.round(percent)}%</span>
         </div>
       )}
       <div
         className="w-full h-2 rounded-full overflow-hidden"
-        style={{ backgroundColor: 'rgba(0,0,0,0.08)' }}
+        style={{ backgroundColor: 'var(--linkedin-border)' }}
       >
         <div
           className="h-full rounded-full transition-all duration-200"
           style={{
             width: `${percent}%`,
-            backgroundColor: '#0A66C2',
+            backgroundColor: 'var(--linkedin-primary)',
           }}
         />
       </div>

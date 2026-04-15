@@ -17,8 +17,8 @@ GrindIn est un **idle/clicker game** qui parodie l'obsession LinkedIn et la cult
 
 | Couche | Technologie |
 |--------|-------------|
-| Language | TypeScript 6 (strict, zéro `any`) |
-| UI | React 19 |
+| Language | TypeScript ~6.0 (strict, zéro `any`) |
+| UI | React 18 |
 | State | Zustand 5 |
 | Build | Vite 8 |
 | Styling | Tailwind CSS 4 |
@@ -53,7 +53,7 @@ src/
 │       ├── brandingSlice.ts      # Posts, CV, acceptanceRate [PLANNED]
 │       ├── pyramidSlice.ts       # Disciples, recrutement auto [PLANNED]
 │       ├── sacrificesSlice.ts    # Sacrifices, malus agrégés [PLANNED]
-│       ├── aiSlice.ts            # IA autoclicker, ban [PLANNED]
+│       ├── aiGrowthSlice.ts      # IA autoclicker, ban [PLANNED]
 │       └── prestigeSlice.ts      # Paliers, resets, titres [PLANNED]
 ├── hooks/
 │   ├── useGameLoop.ts    # Lifecycle de la game loop (setInterval 100ms)
@@ -69,14 +69,14 @@ src/
 
 ### Persistance
 
-Sauvegarde complète du `GameState` dans `localStorage` (clé `linkedin_clicker_save`). Format versionné avec registre de migrations. Les grands nombres (paliers 14+) sont sérialisés en `string` pour éviter la perte de précision flottante.
+Sauvegarde complète du `GameState` dans `localStorage` (clé `grindin-save`). Format versionné avec registre de migrations. Les grands nombres (paliers 14+) sont sérialisés en `string` pour éviter la perte de précision flottante.
 
 ### Règles de typage
 
 - Zéro `any`, zéro `unknown` hors frontières réelles (JSON.parse, localStorage)
 - Aux frontières `unknown` : type guards explicites, jamais de cast direct
 - `npm run build` et `npm run lint` doivent passer sans erreur avant tout commit
-- Un fichier = une responsabilité, max 200 lignes
+- Un fichier = une responsabilité ; viser ~200 lignes (léger dépassement acceptable si la lisibilité reste bonne)
 
 ---
 
@@ -138,9 +138,9 @@ L'autoclicker est une récompense tardive (débloqué au palier 5) avec un vrai 
 | Persistance & migrations | Complet |
 | Types & constants (tous modules) | Complet |
 | Tests unitaires (core) | Complet |
-| UI React | À construire |
+| UI React | Squelette LinkedIn V1 en place |
 | Slices Mindset / Branding / Pyramid / Sacrifices / AI / Prestige | À implémenter |
 
 ---
 
-*Stack : TypeScript + React 19 + Zustand 5 + Vite 8 + Tailwind CSS 4. Zéro backend. 100% offline-capable.*
+*Stack : TypeScript + React 18 + Zustand 5 + Vite 8 + Tailwind CSS 4. Zéro backend. 100% offline-capable.*
