@@ -117,7 +117,7 @@ export function MindsetPanel() {
   const totalClicksBonus    = useGameStore((s) => s.totalClicksBonus);
   const relations        = useGameStore((s) => s.relations);
   const clicksPerRequest = useGameStore((s) => s.clicksPerRequest);
-  const now              = useGameStore((s) => s.lastTickAt || s.lastCycleAt || 0);
+  const now              = useGameStore((s) => s.lastTickAt || Date.now());
   const buyFormation     = useGameStore((s) => s.buyFormation);
   const mindset          = useMemo<MindsetState>(() => ({
     completedFormations,
