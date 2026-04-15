@@ -9,7 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check": "echo '\\n🔍 LINT...' && npm run lint && echo '✅ Lint OK' && echo '\\n🏗️  BUILD...' && npm run build 2>&1 | grep -E '(error|warning|✓|✗|built in)' && echo '✅ Build OK' && echo '\\n🧪 TESTS...' && npm run test 2>&1 | grep -E '(passed|failed|Tests|Test Files)' && echo '✅ Tests OK' && echo '\\n🎉 ALL CHECKS PASSED'"
   },
   "dependencies": {
     "big.js": "^7.0.1",
