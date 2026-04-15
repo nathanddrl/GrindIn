@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { useGameLoop } from './hooks/useGameLoop';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useGameStore } from './store/useGameStore';
 import { ProgressBar } from './components/ProgressBar';
+import { getRandomHumorPostMessage } from './features/branding/logic/humorPost';
 import {
   MainClickerButton,
   PendingRequestsCounter,
@@ -40,6 +42,7 @@ function App() {
   const cycleDuration = useGameStore((s) => s.cycleDuration);
   const isBanned = useGameStore((s) => s.isBanned);
   const banRemainingSeconds = useGameStore((s) => s.banRemainingSeconds);
+  const humorPostMessage = useMemo(() => getRandomHumorPostMessage(), []);
 
   const prestigeProgress = Math.min(relations, PRESTIGE_GOAL_PLACEHOLDER);
 
@@ -91,7 +94,7 @@ function App() {
             <h2 className="mt-2 text-lg font-bold text-[var(--linkedin-text)]">Stagiaire Ambitieux</h2>
             <p className="mt-1 text-sm text-[var(--linkedin-muted)]">Vues de votre profil: +3.5% relation passive</p>
             <div className="mt-3 flex items-center justify-between rounded-md bg-[var(--linkedin-page)] px-3 py-2 text-sm text-[var(--linkedin-text)]">
-              <span>Total gagné</span>
+              <span>Relations totales gagnées</span>
               <strong>{totalEarned.toLocaleString('fr-FR')}</strong>
             </div>
           </article>
@@ -119,7 +122,7 @@ function App() {
           <article className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
             <p className="text-sm text-[var(--linkedin-muted)]">Commencez un post inspirant</p>
             <div className="mt-3 rounded-lg border border-[var(--linkedin-border)] bg-[var(--linkedin-page)] px-3 py-4 text-sm text-[var(--linkedin-muted)]">
-              "Aujourd'hui, j'ai appris que la resilience se mesure en KPI."
+              {`"${humorPostMessage}"`}
             </div>
             <div className="mt-3 flex flex-wrap gap-2 text-xs">
               <span className="rounded-full bg-[#EAF4FF] px-2 py-1 text-[var(--linkedin-primary)]">Branding +12% (placeholder)</span>
