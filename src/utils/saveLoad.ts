@@ -6,7 +6,7 @@
 //   - Ce module gère la couche explicite : export/import, suppression, validation,
 //     affichage des métadonnées, et migrations manuelles si Zustand est bypassed.
 
-import { SAVE_VERSION } from '../core/constants';
+import { SAVE_VERSION, GAME_CONSTANTS } from '../core/constants';
 import { useGameStore } from '../store/useGameStore';
 import type { GamePhase } from '../core/types';
 
@@ -126,21 +126,24 @@ function normalizePersistedState(raw: unknown): PersistedState | null {
   const c = raw as Record<string, unknown>;
   const d = getPersistedStateDefaults();
 
+  const clampNum = (v: number, min: number, max: number): number =>
+    Number.isFinite(v) ? Math.max(min, Math.min(max, v)) : min;
+
   return {
     gamePhase:               pickField(c, 'gamePhase',               d.gamePhase),
     isBanned:                pickField(c, 'isBanned',                d.isBanned),
-    banRemainingSeconds:     pickField(c, 'banRemainingSeconds',     d.banRemainingSeconds),
-    clicksPerRequest:        pickField(c, 'clicksPerRequest',        d.clicksPerRequest),
-    cycleDuration:           pickField(c, 'cycleDuration',           d.cycleDuration),
-    lastTickAt:              pickField(c, 'lastTickAt',              d.lastTickAt),
-    lastCycleAt:             pickField(c, 'lastCycleAt',             d.lastCycleAt),
-    lastPostDecayAt:         pickField(c, 'lastPostDecayAt',         d.lastPostDecayAt),
-    relations:               pickField(c, 'relations',               d.relations),
-    totalRelationsEarned:    pickField(c, 'totalRelationsEarned',    d.totalRelationsEarned),
-    pendingRequests:         pickField(c, 'pendingRequests',         d.pendingRequests),
-    incomingRequests:        pickField(c, 'incomingRequests',        d.incomingRequests),
-    acceptanceRate:          pickField(c, 'acceptanceRate',          d.acceptanceRate),
-    requestsProcessedPerCycle: pickField(c, 'requestsProcessedPerCycle', d.requestsProcessedPerCycle),
+    banRemainingSeconds:     clampNum(pickField(c, 'banRemainingSeconds', d.banRemainingSeconds), 0, 86400),
+    clicksPerRequest:        clampNum(pickField(c, 'clicksPerRequest',    d.clicksPerRequest),    1, 10000),
+    cycleDuration:           clampNum(pickField(c, 'cycleDuration',       d.cycleDuration),       GAME_CONSTANTS.MIN_CYCLE_DURATION_SECONDS, 3600),
+    lastTickAt:              clampNum(pickField(c, 'lastTickAt',          d.lastTickAt),          0, Infinity),
+    lastCycleAt:             clampNum(pickField(c, 'lastCycleAt',         d.lastCycleAt),         0, Infinity),
+    lastPostDecayAt:         clampNum(pickField(c, 'lastPostDecayAt',     d.lastPostDecayAt),     0, Infinity),
+    relations:               clampNum(pickField(c, 'relations',           d.relations),           0, Infinity),
+    totalRelationsEarned:    clampNum(pickField(c, 'totalRelationsEarned', d.totalRelationsEarned), 0, Infinity),
+    pendingRequests:         clampNum(pickField(c, 'pendingRequests',     d.pendingRequests),     0, Infinity),
+    incomingRequests:        clampNum(pickField(c, 'incomingRequests',    d.incomingRequests),    0, Infinity),
+    acceptanceRate:          clampNum(pickField(c, 'acceptanceRate',      d.acceptanceRate),      0, GAME_CONSTANTS.MAX_ACCEPTANCE_RATE),
+    requestsProcessedPerCycle: clampNum(pickField(c, 'requestsProcessedPerCycle', d.requestsProcessedPerCycle), 0, 1_000_000),
   };
 }
 

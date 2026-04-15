@@ -17,7 +17,7 @@ export function useGameLoop(callbacks: LoopCallbacks = {}): void {
 
   useEffect(() => {
     // Rattrapage hors-ligne avant le premier tick
-    applyOfflineProgress();
+    applyOfflineProgress({ onOfflineProgress: (...args) => callbacksRef.current.onOfflineProgress?.(...args) });
 
     startGameLoop({
       onCycle:           (...args) => callbacksRef.current.onCycle?.(...args),
