@@ -32,6 +32,7 @@ export const GAME_CONSTANTS = {
   MIN_INCOMING_INTERVAL_SECONDS:    5,
   BASE_INCOMING_INTERVAL_SECONDS:  60,
   INCOMING_RATE_FACTOR:           0.5, // chaque point d'acceptanceRate réduit l'intervalle de 0.5s
+  INCOMING_RATE_SCALING:          0.4, // ralentit l'accélération réelle du clicker entrant
 
   // Branding decay (sans post actif)
   DECAY_GRACE_PERIOD_SECONDS:     120, // délai avant que le decay commence

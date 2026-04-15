@@ -11,6 +11,7 @@ import {
   CycleCountdown,
   CycleNotification,
 } from './features/clicker';
+import { MindsetPanel } from './features/mindset';
 
 const PRESTIGE_GOAL_PLACEHOLDER = 5_000;
 
@@ -99,14 +100,7 @@ function App() {
             </div>
           </article>
 
-          <article className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
-            <h2 className="text-base font-bold text-[var(--linkedin-text)]">Mindset</h2>
-            <p className="mt-1 text-sm text-[var(--linkedin-muted)]">Formations en cours (squelette):</p>
-            <ul className="mt-3 space-y-2 text-sm text-[var(--linkedin-text)]">
-              <li className="rounded-md bg-[var(--linkedin-page)] px-3 py-2">Storytelling B2B Niveau 1</li>
-              <li className="rounded-md bg-[var(--linkedin-page)] px-3 py-2">Leadership performatif</li>
-            </ul>
-          </article>
+          <MindsetPanel />
 
           <article className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
             <h2 className="mb-3 text-base font-bold text-[var(--linkedin-text)]">Action primaire</h2>

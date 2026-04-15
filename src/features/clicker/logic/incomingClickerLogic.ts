@@ -16,9 +16,16 @@ export function handleAcceptIncoming(): boolean {
  * Exposé pour l'affichage UI du timer.
  */
 export function computeIncomingIntervalSeconds(acceptanceRate: number): number {
+  const effectiveRate = Math.max(
+    0,
+    acceptanceRate - GAME_CONSTANTS.BASE_ACCEPTANCE_RATE,
+  );
+
   return Math.max(
     GAME_CONSTANTS.MIN_INCOMING_INTERVAL_SECONDS,
     GAME_CONSTANTS.BASE_INCOMING_INTERVAL_SECONDS
-      - acceptanceRate * GAME_CONSTANTS.INCOMING_RATE_FACTOR,
+      - effectiveRate
+        * GAME_CONSTANTS.INCOMING_RATE_FACTOR
+        * GAME_CONSTANTS.INCOMING_RATE_SCALING,
   );
 }
