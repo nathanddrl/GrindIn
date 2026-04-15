@@ -41,7 +41,7 @@ let lastAutosaveAt  = 0; // dernier autosave
 // ---------------------------------------------------------------------------
 // CALCUL DE L'INTERVALLE DES DEMANDES ENTRANTES
 // Plus acceptanceRate est élevé, plus les demandes arrivent vite.
-// interval = BASE - (rate * FACTOR), plancher = MIN
+// interval = BASE - ((rate - BASE_ACCEPTANCE_RATE) * INCOMING_RATE_SCALING), plancher = MIN
 // ---------------------------------------------------------------------------
 
 function incomingIntervalMs(acceptanceRate: number): number {
