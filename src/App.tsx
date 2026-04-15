@@ -91,7 +91,7 @@ function App() {
             <h2 className="mt-2 text-lg font-bold text-[var(--linkedin-text)]">Stagiaire Ambitieux</h2>
             <p className="mt-1 text-sm text-[var(--linkedin-muted)]">Vues de votre profil: +3.5% relation passive</p>
             <div className="mt-3 flex items-center justify-between rounded-md bg-[var(--linkedin-page)] px-3 py-2 text-sm text-[var(--linkedin-text)]">
-              <span>Total gagne</span>
+              <span>Total gagné</span>
               <strong>{totalEarned.toLocaleString('fr-FR')}</strong>
             </div>
           </article>
