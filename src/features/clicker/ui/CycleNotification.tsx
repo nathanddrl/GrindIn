@@ -25,9 +25,9 @@ export function CycleNotification(): React.ReactElement | null {
       style={{ opacity: Math.max(0, opacity) }}
       className={[
         'pointer-events-none',
-        'flex items-center gap-2 px-4 py-2 rounded-lg',
-        'bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.15),0_2px_3px_rgba(0,0,0,0.2)]',
-        'text-[14px] font-semibold text-[#000000E6]',
+        'flex max-w-[min(92vw,34rem)] flex-col items-center gap-2 rounded-2xl px-6 py-5 text-center',
+        'border border-[var(--linkedin-border)] bg-white/98 shadow-[0_12px_30px_rgba(0,0,0,0.18)]',
+        'text-[18px] font-semibold text-[#000000E6] sm:text-[24px]',
         'transition-opacity duration-300',
       ].join(' ')}
     >
@@ -35,7 +35,7 @@ export function CycleNotification(): React.ReactElement | null {
         +{result.accepted.toLocaleString('fr-FR')} relations 🤝
       </span>
       {result.rejected > 0 && (
-        <span className="text-[#00000099] font-normal">
+        <span className="font-normal text-[14px] text-[#00000099] sm:text-[16px]">
           | {result.rejected.toLocaleString('fr-FR')} ignorée{result.rejected > 1 ? 's' : ''}
         </span>
       )}
