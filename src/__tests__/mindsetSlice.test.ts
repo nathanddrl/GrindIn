@@ -273,8 +273,7 @@ describe('mindsetSlice', () => {
     });
 
     it('retourne false si requiredJobId absent de cvJobs', () => {
-      // become_a_thought_leader requiert job 'consultant'
-      store.setState({ completedFormations: ['become_a_thought_leader'] }); // pas de prérequis formation
+      // become_a_thought_leader requiert job 'consultant' — completedFormations vide pour isoler le verrouillage par job
       expect(selectFormationAvailable(store.getState(), 'become_a_thought_leader', [])).toBe(false);
     });
 
