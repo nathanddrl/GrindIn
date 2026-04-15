@@ -73,7 +73,7 @@ export const GAME_CONSTANTS = {
 // SAVE VERSION
 // ---------------------------------------------------------------------------
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 // ---------------------------------------------------------------------------
 // CATALOGUE — Formations (Mindset)

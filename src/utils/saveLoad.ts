@@ -8,7 +8,7 @@
 
 import { SAVE_VERSION, GAME_CONSTANTS } from '../core/constants';
 import { useGameStore } from '../store/useGameStore';
-import type { GamePhase } from '../core/types';
+import type { GamePhase, FormationId, ActiveFormation } from '../core/types';
 
 // ---------------------------------------------------------------------------
 // CLÉ LOCALSTORAGE — doit correspondre au `name` de Zustand persist
@@ -37,6 +37,10 @@ export interface PersistedState {
   incomingRequests:        number;
   acceptanceRate:          number;
   requestsProcessedPerCycle: number;
+  // Mindset
+  completedFormations:     FormationId[];
+  activeFormations:        ActiveFormation[];
+  totalClicksBonus:        number;
 }
 
 // Format stocké par Zustand persist sur le disque
@@ -80,8 +84,12 @@ export type LoadResult =
 type MigrateFn = (state: PersistedState) => PersistedState;
 
 const MIGRATIONS: Map<number, MigrateFn> = new Map([
-  // Exemple pour la version 2 :
-  // [2, (state) => ({ ...state, newField: defaultValue })],
+  [2, (state) => ({
+    ...state,
+    completedFormations: state.completedFormations ?? [],
+    activeFormations:    state.activeFormations    ?? [],
+    totalClicksBonus:    state.totalClicksBonus    ?? 0,
+  })],
 ]);
 
 function applyMigrations(raw: PersistedState, fromVersion: number): PersistedState {
@@ -110,6 +118,9 @@ function getPersistedStateDefaults(): PersistedState {
     incomingRequests:        s.incomingRequests,
     acceptanceRate:          s.acceptanceRate,
     requestsProcessedPerCycle: s.requestsProcessedPerCycle,
+    completedFormations:     s.completedFormations,
+    activeFormations:        s.activeFormations,
+    totalClicksBonus:        s.totalClicksBonus,
   };
 }
 
@@ -118,6 +129,12 @@ function getPersistedStateDefaults(): PersistedState {
 function pickField<T>(c: Record<string, unknown>, key: string, def: T): T {
   const val = c[key];
   return typeof val === typeof def ? (val as T) : def;
+}
+
+// Extrait un tableau du candidat brut, retourne le défaut si ce n'est pas un tableau.
+function pickArray<T>(c: Record<string, unknown>, key: string, def: T[]): T[] {
+  const val = c[key];
+  return Array.isArray(val) ? (val as T[]) : def;
 }
 
 function normalizePersistedState(raw: unknown): PersistedState | null {
@@ -144,6 +161,9 @@ function normalizePersistedState(raw: unknown): PersistedState | null {
     incomingRequests:        clampNum(pickField(c, 'incomingRequests',    d.incomingRequests),    0, Infinity),
     acceptanceRate:          clampNum(pickField(c, 'acceptanceRate',      d.acceptanceRate),      0, GAME_CONSTANTS.MAX_ACCEPTANCE_RATE),
     requestsProcessedPerCycle: clampNum(pickField(c, 'requestsProcessedPerCycle', d.requestsProcessedPerCycle), 0, 1_000_000),
+    completedFormations:     pickArray<FormationId>(c, 'completedFormations', d.completedFormations),
+    activeFormations:        pickArray<ActiveFormation>(c, 'activeFormations', d.activeFormations),
+    totalClicksBonus:        clampNum(pickField(c, 'totalClicksBonus', d.totalClicksBonus), 0, Infinity),
   };
 }
 
@@ -257,6 +277,9 @@ export function saveGame(): SaveResult {
         incomingRequests:        storeState.incomingRequests,
         acceptanceRate:          storeState.acceptanceRate,
         requestsProcessedPerCycle: storeState.requestsProcessedPerCycle,
+        completedFormations:     storeState.completedFormations,
+        activeFormations:        storeState.activeFormations,
+        totalClicksBonus:        storeState.totalClicksBonus,
       },
     };
 
@@ -352,6 +375,9 @@ export function exportSave(): string {
       incomingRequests:        storeState.incomingRequests,
       acceptanceRate:          storeState.acceptanceRate,
       requestsProcessedPerCycle: storeState.requestsProcessedPerCycle,
+      completedFormations:     storeState.completedFormations,
+      activeFormations:        storeState.activeFormations,
+      totalClicksBonus:        storeState.totalClicksBonus,
     },
   };
 
