@@ -129,7 +129,7 @@ function App() {
 
           {isBanned && (
             <article className="rounded-xl border border-[var(--linkedin-danger)] bg-[#FDECEC] p-4 text-[var(--linkedin-danger)] shadow-[var(--linkedin-shadow)]">
-              <h2 className="text-base font-bold">Votre compte a ete restreint</h2>
+              <h2 className="text-base font-bold">Votre compte a été restreint</h2>
               <p className="mt-1 text-sm">
                 Suspension en cours: {banRemainingSeconds.toFixed(0)}s avant retour dans le flux.
               </p>
