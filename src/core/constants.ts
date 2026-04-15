@@ -58,6 +58,8 @@ export const GAME_CONSTANTS = {
 
   // tendance_linkedin sans tendance active
   TRENDING_REDUCED_BONUS:           6, // au lieu de 12%
+  TRENDING_ACTIVATION_CHANCE_PER_TICK: 0.001, // ~0.1% par tick (100ms) ≈ activation toutes les ~100s
+  TRENDING_DURATION_SECONDS:       1_800, // 30min
 
   // Offline progress
   OFFLINE_MAX_HOURS:                8,

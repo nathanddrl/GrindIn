@@ -205,7 +205,7 @@ export const createBrandingSlice: StateCreator<
   tickBranding: (now) => {
     const state = get();
     type BrandingUpdate = Partial<Pick<BrandingState,
-      'activePost' | 'viralPost' | 'isTrending' | 'lastPostEndedAt'>>;
+      'activePost' | 'viralPost' | 'isTrending' | 'trendingExpiresAt' | 'lastPostEndedAt'>>;
     const updates: BrandingUpdate = {};
 
     if (state.activePost !== null && now >= state.activePost.expiresAt) {
@@ -217,6 +217,12 @@ export const createBrandingSlice: StateCreator<
     }
     if (state.isTrending && now >= state.trendingExpiresAt) {
       updates.isTrending = false;
+    }
+
+    // Activation aléatoire de la tendance (seulement si pas déjà active)
+    if (!state.isTrending && Math.random() < GAME_CONSTANTS.TRENDING_ACTIVATION_CHANCE_PER_TICK) {
+      updates.isTrending = true;
+      updates.trendingExpiresAt = now + GAME_CONSTANTS.TRENDING_DURATION_SECONDS * 1000;
     }
 
     if (Object.keys(updates).length > 0) set(updates);
