@@ -183,7 +183,7 @@ export const selectFormationProgress = (
   if (!active) return null;
   const total = active.endsAt - active.startedAt;
   if (total <= 0) return 1;
-  return Math.min(1, (now - active.startedAt) / total);
+  return Math.max(0, Math.min(1, (now - active.startedAt) / total));
 };
 
 /** `clicksPerRequest` effectif = base + bonus formations. */
