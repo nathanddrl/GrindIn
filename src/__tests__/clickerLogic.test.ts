@@ -20,6 +20,8 @@ const DEFAULT_STATE = {
   lastTickAt: 0,
   lastCycleAt: 0,
   lastPostDecayAt: 0,
+  cycleLastResult: null,
+  cycleLastResultAt: 0,
 };
 
 beforeEach(() => {
