@@ -31,8 +31,8 @@ export const GAME_CONSTANTS = {
   // Clicker secondaire — demandes entrantes
   MIN_INCOMING_INTERVAL_SECONDS:    5,
   BASE_INCOMING_INTERVAL_SECONDS:  60,
-  INCOMING_RATE_FACTOR:           0.5, // chaque point d'acceptanceRate réduit l'intervalle de 0.5s
-  INCOMING_RATE_SCALING:          0.4, // ralentit l'accélération réelle du clicker entrant
+  INCOMING_RATE_FACTOR:           0.5, // combiné avec SCALING : chaque point au-dessus de BASE_ACCEPTANCE_RATE réduit l'intervalle de FACTOR × SCALING = 0.2s
+  INCOMING_RATE_SCALING:          0.4, // atténue INCOMING_RATE_FACTOR (formule : BASE - max(0, rate - BASE_ACCEPTANCE_RATE) * FACTOR * SCALING)
 
   // Branding decay (sans post actif)
   DECAY_GRACE_PERIOD_SECONDS:     120, // délai avant que le decay commence
