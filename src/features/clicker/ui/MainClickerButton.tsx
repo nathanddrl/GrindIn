@@ -1,7 +1,7 @@
 // features/clicker/ui/MainClickerButton.tsx
 // Bouton principal d'envoi de demandes de connexion.
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useGameStore } from '../../../store/useGameStore';
 import { selectCanClick } from '../../../store/useGameStore';
 import { handleMainClick } from '../logic/clickerLogic';
@@ -12,12 +12,20 @@ export function MainClickerButton(): React.ReactElement {
   const isBanned      = useGameStore((s) => s.isBanned);
 
   const [animating, setAnimating] = useState(false);
+  const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (animTimerRef.current !== null) clearTimeout(animTimerRef.current);
+    };
+  }, []);
 
   const onClick = useCallback(() => {
     if (!canClick) return;
     handleMainClick();
+    if (animTimerRef.current !== null) clearTimeout(animTimerRef.current);
     setAnimating(true);
-    setTimeout(() => setAnimating(false), 150);
+    animTimerRef.current = setTimeout(() => setAnimating(false), 150);
   }, [canClick]);
 
   return (
