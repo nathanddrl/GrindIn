@@ -120,6 +120,7 @@ export const useGameStore = create<GameStore>()(
         incomingRequests:        s.incomingRequests,
         acceptanceRate:          s.acceptanceRate,
         requestsProcessedPerCycle: s.requestsProcessedPerCycle,
+        // cycleLastResult + cycleLastResultAt : éphémères, non persistés
       }),
 
       migrate: (persisted, fromVersion) => {

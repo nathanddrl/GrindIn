@@ -16,6 +16,10 @@ export interface ConnectionsState {
   incomingRequests: number;       // clicker secondaire — demandes reçues en attente
   acceptanceRate: number;         // taux calculé en % (base: 10, max: 95)
   requestsProcessedPerCycle: number; // base: 10 + contribution pyramide
+
+  // Résultat du dernier cycle — UI uniquement, non persisté
+  cycleLastResult: CycleResult | null;
+  cycleLastResultAt: number;      // timestamp ms, 0 = jamais
 }
 
 // ---------------------------------------------------------------------------
@@ -28,6 +32,12 @@ export interface ConnectionsActions {
 
   /** Ajoute des demandes reçues (clicker secondaire). */
   addIncomingRequests: (count: number) => void;
+
+  /**
+   * Accepte 1 demande reçue → +1 relation directement (hors cycle).
+   * Retourne `true` si une demande était disponible, `false` sinon.
+   */
+  acceptIncomingRequest: () => boolean;
 
   /** Traite un cycle : accepte/rejette les demandes en attente, crédite les relations. */
   processCycle: () => CycleResult;
@@ -72,6 +82,8 @@ export const createConnectionsSlice: StateCreator<
   incomingRequests: 0,
   acceptanceRate: GAME_CONSTANTS.BASE_ACCEPTANCE_RATE,
   requestsProcessedPerCycle: GAME_CONSTANTS.BASE_REQUESTS_PER_CYCLE,
+  cycleLastResult: null,
+  cycleLastResultAt: 0,
 
   // --- actions ---
 
@@ -81,20 +93,36 @@ export const createConnectionsSlice: StateCreator<
   addIncomingRequests: (count) =>
     set((s) => ({ incomingRequests: s.incomingRequests + count })),
 
+  acceptIncomingRequest: () => {
+    if (get().incomingRequests <= 0) return false;
+    set((s) => ({
+      incomingRequests:     s.incomingRequests - 1,
+      relations:            s.relations + 1,
+      totalRelationsEarned: s.totalRelationsEarned + 1,
+    }));
+    return true;
+  },
+
   processCycle: () => {
     const { pendingRequests, requestsProcessedPerCycle, acceptanceRate } = get();
 
     const processed = Math.min(pendingRequests, requestsProcessedPerCycle);
-    const accepted  = Math.round(processed * (acceptanceRate / 100));
+    const p = acceptanceRate / 100;
+    const mean = processed * p;
+    const stddev = Math.sqrt(processed * p * (1 - p));
+    const accepted = Math.min(processed, Math.max(0, Math.round(mean + (Math.random() * 2 - 1) * stddev)));
     const rejected  = processed - accepted;
+    const result: CycleResult = { accepted, rejected, processed };
 
     set((s) => ({
-      pendingRequests:     s.pendingRequests - processed,
-      relations:           s.relations + accepted,
+      pendingRequests:      s.pendingRequests - processed,
+      relations:            s.relations + accepted,
       totalRelationsEarned: s.totalRelationsEarned + accepted,
+      cycleLastResult:      result,
+      cycleLastResultAt:    Date.now(),
     }));
 
-    return { accepted, rejected, processed };
+    return result;
   },
 
   addRelations: (amount) =>
