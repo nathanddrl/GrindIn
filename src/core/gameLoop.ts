@@ -41,14 +41,21 @@ let lastAutosaveAt  = 0; // dernier autosave
 // ---------------------------------------------------------------------------
 // CALCUL DE L'INTERVALLE DES DEMANDES ENTRANTES
 // Plus acceptanceRate est élevé, plus les demandes arrivent vite.
-// interval = BASE - (rate * FACTOR), plancher = MIN
+// interval = BASE - ((rate - BASE_ACCEPTANCE_RATE) * INCOMING_RATE_SCALING), plancher = MIN
 // ---------------------------------------------------------------------------
 
 function incomingIntervalMs(acceptanceRate: number): number {
+  const effectiveRate = Math.max(
+    0,
+    acceptanceRate - GAME_CONSTANTS.BASE_ACCEPTANCE_RATE,
+  );
+
   const seconds = Math.max(
     GAME_CONSTANTS.MIN_INCOMING_INTERVAL_SECONDS,
     GAME_CONSTANTS.BASE_INCOMING_INTERVAL_SECONDS
-      - acceptanceRate * GAME_CONSTANTS.INCOMING_RATE_FACTOR,
+      - effectiveRate
+        * GAME_CONSTANTS.INCOMING_RATE_FACTOR
+        * GAME_CONSTANTS.INCOMING_RATE_SCALING,
   );
   return seconds * 1000;
 }
@@ -73,6 +80,18 @@ function tick(): void {
   // --- Décompte ban IA ---
   if (store.isBanned && elapsedSec > 0) {
     store.tickBanTimer(elapsedSec);
+  }
+
+  // --- Formations Mindset : complétion & sync clicksPerRequest ---
+  {
+    const prevBonus = store.totalClicksBonus;
+    store.tickFormations(now);
+    const newBonus = useGameStore.getState().totalClicksBonus;
+    if (newBonus !== prevBonus) {
+      useGameStore.getState().setClicksPerRequest(
+        GAME_CONSTANTS.BASE_CLICKS_PER_REQUEST + newBonus,
+      );
+    }
   }
 
   // --- Cycle métier ---

@@ -102,6 +102,12 @@ describe('computeIncomingIntervalSeconds', () => {
     expect(computeIncomingIntervalSeconds(0)).toBe(GAME_CONSTANTS.BASE_INCOMING_INTERVAL_SECONDS);
   });
 
+  it('retourne BASE au taux de base', () => {
+    expect(computeIncomingIntervalSeconds(GAME_CONSTANTS.BASE_ACCEPTANCE_RATE)).toBe(
+      GAME_CONSTANTS.BASE_INCOMING_INTERVAL_SECONDS,
+    );
+  });
+
   it('diminue avec un acceptanceRate plus élevé', () => {
     const low  = computeIncomingIntervalSeconds(10);
     const high = computeIncomingIntervalSeconds(50);
@@ -112,11 +118,15 @@ describe('computeIncomingIntervalSeconds', () => {
     expect(computeIncomingIntervalSeconds(9999)).toBe(GAME_CONSTANTS.MIN_INCOMING_INTERVAL_SECONDS);
   });
 
-  it('formule : BASE - rate * FACTOR, plancher MIN', () => {
-    const rate = 20;
+  it('formule : BASE - (rate - BASE_ACCEPTANCE_RATE)+ * FACTOR * SCALING, plancher MIN', () => {
+    const rate = 40;
+    const effectiveRate = Math.max(0, rate - GAME_CONSTANTS.BASE_ACCEPTANCE_RATE);
     const expected = Math.max(
       GAME_CONSTANTS.MIN_INCOMING_INTERVAL_SECONDS,
-      GAME_CONSTANTS.BASE_INCOMING_INTERVAL_SECONDS - rate * GAME_CONSTANTS.INCOMING_RATE_FACTOR,
+      GAME_CONSTANTS.BASE_INCOMING_INTERVAL_SECONDS
+        - effectiveRate
+          * GAME_CONSTANTS.INCOMING_RATE_FACTOR
+          * GAME_CONSTANTS.INCOMING_RATE_SCALING,
     );
     expect(computeIncomingIntervalSeconds(rate)).toBe(expected);
   });

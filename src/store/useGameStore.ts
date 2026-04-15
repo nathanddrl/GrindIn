@@ -12,6 +12,11 @@ import {
   type ConnectionsSlice,
 } from './slices/connectionsSlice';
 
+import {
+  createMindsetSlice,
+  type MindsetSlice,
+} from './slices/mindsetSlice';
+
 // ---------------------------------------------------------------------------
 // SLICE MÉTA — état global non rattaché à un module fonctionnel
 // ---------------------------------------------------------------------------
@@ -78,9 +83,9 @@ const createGameMetaSlice: StateCreator<GameStore, [], [], GameMetaSlice> = (set
 
 export type GameStore =
   & GameMetaSlice
-  & ConnectionsSlice;
+  & ConnectionsSlice
+  & MindsetSlice;
 // À venir :
-// & MindsetSlice
 // & BrandingSlice
 // & PyramidSlice
 // & SacrificesSlice
@@ -96,6 +101,7 @@ export const useGameStore = create<GameStore>()(
     (...args) => ({
       ...createGameMetaSlice(...args),
       ...createConnectionsSlice(...args),
+      ...createMindsetSlice(...args),
     }),
     {
       name: 'grindin-save',
@@ -121,6 +127,10 @@ export const useGameStore = create<GameStore>()(
         acceptanceRate:          s.acceptanceRate,
         requestsProcessedPerCycle: s.requestsProcessedPerCycle,
         // cycleLastResult + cycleLastResultAt : éphémères, non persistés
+        // Mindset
+        completedFormations:     s.completedFormations,
+        activeFormations:        s.activeFormations,
+        totalClicksBonus:        s.totalClicksBonus,
       }),
 
       migrate: (persisted, fromVersion) => {

@@ -3,7 +3,8 @@ import { useGameLoop } from './hooks/useGameLoop';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useGameStore } from './store/useGameStore';
 import { ProgressBar } from './components/ProgressBar';
-import { getRandomHumorPostMessage } from './features/branding/logic/humorPost';
+import { Tooltip } from './components/Tooltip';
+import { getRandomHumorPostMessage, getRandomNewsItems } from './features/branding/logic/humorPost';
 import {
   MainClickerButton,
   PendingRequestsCounter,
@@ -11,14 +12,9 @@ import {
   CycleCountdown,
   CycleNotification,
 } from './features/clicker';
+import { MindsetPanel } from './features/mindset';
 
 const PRESTIGE_GOAL_PLACEHOLDER = 5_000;
-
-const NEWS_ITEMS: ReadonlyArray<string> = [
-  'Le teletravail est mort: +10% de vitesse de recrutement.',
-  'Nouvelle tendance: poster sans lire augmente la visibilite.',
-  'Le personal branding remplace les competences: +5% acceptation.',
-];
 
 const DISCIPLE_SUGGESTIONS: ReadonlyArray<{ name: string; role: string }> = [
   { name: 'Nadia Networker', role: 'Future evangeliste de ton reseau' },
@@ -43,10 +39,9 @@ function App() {
   const isBanned = useGameStore((s) => s.isBanned);
   const banRemainingSeconds = useGameStore((s) => s.banRemainingSeconds);
   const humorPostMessage = useMemo(() => getRandomHumorPostMessage(), []);
+  const newsItems = useMemo(() => getRandomNewsItems(), []);
 
   const prestigeProgress = Math.min(relations, PRESTIGE_GOAL_PLACEHOLDER);
-
-  const relationLabel = `${relations.toLocaleString('fr-FR')} relations`;
   const prestigeLabel = `${prestigeProgress.toLocaleString('fr-FR')} / ${PRESTIGE_GOAL_PLACEHOLDER.toLocaleString('fr-FR')}`;
 
   return (
@@ -72,50 +67,44 @@ function App() {
             ))}
           </nav>
 
-          <div className="min-w-[220px] rounded-lg border border-[var(--linkedin-border)] bg-white px-3 py-2">
-            <div className="mb-1 flex items-center justify-between text-xs text-[var(--linkedin-muted)]">
-              <span>{relationLabel}</span>
-              <span>Prestige</span>
+          <article className="min-w-[220px] rounded-lg border border-[var(--linkedin-border)] bg-white px-3 py-2">
+            <p className="text-xs uppercase tracking-wide text-[var(--linkedin-muted)]">Carte de profil</p>
+            <h2 className="mt-2 text-sm font-bold text-[var(--linkedin-text)]">Stagiaire Ambitieux</h2>
+            <p className="mt-1 text-xs text-[var(--linkedin-muted)]">Vues profil: +3.5% relation passive</p>
+            <div className="mt-2 flex items-center justify-between rounded-md bg-[var(--linkedin-page)] px-2 py-1 text-xs text-[var(--linkedin-text)]">
+              <span className="flex items-center gap-1">
+                Relations totales
+                <Tooltip text="Cumul de toutes les relations obtenues dans la partie, y compris celles dépensées ou perdues ensuite." />
+              </span>
+              <strong>{totalEarned.toLocaleString('fr-FR')}</strong>
             </div>
-            <ProgressBar value={prestigeProgress} max={PRESTIGE_GOAL_PLACEHOLDER} className="mb-1" />
-            <div className="text-right text-[11px] text-[var(--linkedin-muted)]">{prestigeLabel}</div>
-            <div className="mt-1 flex items-center justify-end gap-2 text-[11px] text-[var(--linkedin-muted)]">
-              <span>Acceptation {acceptanceRate}%</span>
-              <span>Cycle {cycleDuration}s</span>
-            </div>
-          </div>
+          </article>
         </div>
       </header>
 
       <main className="mx-auto grid w-full max-w-[1240px] grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[260px_minmax(0,1fr)_300px] lg:px-6">
         <section className="order-2 flex flex-col gap-4 lg:order-1">
           <article className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
-            <p className="text-xs uppercase tracking-wide text-[var(--linkedin-muted)]">Carte de profil</p>
-            <h2 className="mt-2 text-lg font-bold text-[var(--linkedin-text)]">Stagiaire Ambitieux</h2>
-            <p className="mt-1 text-sm text-[var(--linkedin-muted)]">Vues de votre profil: +3.5% relation passive</p>
-            <div className="mt-3 flex items-center justify-between rounded-md bg-[var(--linkedin-page)] px-3 py-2 text-sm text-[var(--linkedin-text)]">
-              <span>Relations totales gagnées</span>
-              <strong>{totalEarned.toLocaleString('fr-FR')}</strong>
+            <div className="mb-3 flex items-center gap-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--linkedin-muted)]">Relations actuelles</p>
+              <Tooltip text="Nombre de relations actives en ce moment. C'est la stat principale de progression." />
+            </div>
+            <p className="text-4xl font-black leading-none tracking-tight text-[var(--linkedin-primary)] sm:text-5xl">
+              {relations.toLocaleString('fr-FR')}
+            </p>
+            <ProgressBar value={prestigeProgress} max={PRESTIGE_GOAL_PLACEHOLDER} className="mb-1" />
+            <div className="text-right text-[11px] text-[var(--linkedin-muted)]">{prestigeLabel}</div>
+            <div className="mt-1 flex items-center justify-end gap-2 text-[11px] text-[var(--linkedin-muted)]">
+              <span>Acceptation {acceptanceRate}%</span>
+              <span>Cycle {cycleDuration}s</span>
             </div>
           </article>
 
-          <article className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
-            <h2 className="text-base font-bold text-[var(--linkedin-text)]">Mindset</h2>
-            <p className="mt-1 text-sm text-[var(--linkedin-muted)]">Formations en cours (squelette):</p>
-            <ul className="mt-3 space-y-2 text-sm text-[var(--linkedin-text)]">
-              <li className="rounded-md bg-[var(--linkedin-page)] px-3 py-2">Storytelling B2B Niveau 1</li>
-              <li className="rounded-md bg-[var(--linkedin-page)] px-3 py-2">Leadership performatif</li>
-            </ul>
-          </article>
-
-          <article className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
-            <h2 className="mb-3 text-base font-bold text-[var(--linkedin-text)]">Action primaire</h2>
-            <MainClickerButton />
-          </article>
+          <MindsetPanel />
         </section>
 
         <section className="order-1 flex flex-col gap-4 lg:order-2">
-          <div className="fixed bottom-4 left-4 z-50">
+          <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
             <CycleNotification />
           </div>
 
@@ -140,8 +129,24 @@ function App() {
           )}
 
           <article className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
-            <h2 className="mb-3 text-base font-bold text-[var(--linkedin-text)]">Le Grind</h2>
-            <IncomingClickerPanel />
+            <h2 className="mb-3 text-base font-bold text-[var(--linkedin-text)]">Réseautage</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)] ring-1 ring-[var(--linkedin-primary)]/10">
+                <div className="mb-3 flex items-center justify-end gap-2">
+                  <span className="rounded-full bg-[#EAF4FF] px-2 py-1 text-xs font-semibold text-[var(--linkedin-primary)]">Prioritaire</span>
+                  <Tooltip text="Le bouton central du jeu. Il envoie les demandes de connexion pour agrandir ton réseau." position="bottom" />
+                </div>
+                <MainClickerButton />
+              </div>
+
+              <div className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-[var(--linkedin-text)]">Clicker secondaire</p>
+                  <Tooltip text="Les demandes reçues arrivent ici. Tu peux les valider pour gagner du réseau rapidement." position="bottom" />
+                </div>
+                <IncomingClickerPanel />
+              </div>
+            </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               <PendingRequestsCounter />
@@ -161,7 +166,7 @@ function App() {
           <article className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
             <h2 className="text-base font-bold text-[var(--linkedin-text)]">LinkedIn News</h2>
             <ul className="mt-3 space-y-2 text-sm text-[var(--linkedin-text)]">
-              {NEWS_ITEMS.map((item) => (
+              {newsItems.map((item) => (
                 <li key={item} className="rounded-md bg-[var(--linkedin-page)] px-3 py-2">
                   {item}
                 </li>
