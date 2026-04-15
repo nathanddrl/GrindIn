@@ -1,7 +1,7 @@
 // features/clicker/ui/IncomingClickerPanel.tsx
 // Clicker secondaire — demandes reçues en attente + bouton Accepter.
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Tooltip } from '../../../components/Tooltip';
 import { useGameStore } from '../../../store/useGameStore';
 import { selectCanClick } from '../../../store/useGameStore';
@@ -16,12 +16,16 @@ export function IncomingClickerPanel(): React.ReactElement {
   const canAccept   = canClick && incoming > 0;
 
   const [animating, setAnimating] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (timerRef.current !== null) clearTimeout(timerRef.current); }, []);
 
   const onClick = useCallback(() => {
     if (!canAccept) return;
     handleAcceptIncoming();
     setAnimating(true);
-    setTimeout(() => setAnimating(false), 150);
+    if (timerRef.current !== null) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setAnimating(false), 150);
   }, [canAccept]);
 
   return (
