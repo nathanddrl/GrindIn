@@ -102,14 +102,16 @@ export interface Job {
 
 export interface BrandingState {
   activePost: ActivePost | null;    // un seul post actif à la fois
+  viralPost: ActivePost | null;     // bonus viral cumulé au post actif
   postCooldowns: Record<PostTypeId, number>;       // timestamp de fin de cooldown
   postPurchaseCounts: Record<PostTypeId, number>;  // nb de fois acheté (pour coût croissant)
-  baseAcceptanceRate: number;       // taux de base hors posts et malus
+  baseAcceptanceRate: number;       // taux de base hors posts et malus (modifié par formations)
   cvJobs: JobId[];                  // jobs ajoutés au CV
   cvPermanentBonus: number;         // somme des bonus permanents des jobs
   isTrending: boolean;              // tendance active (boost les posts "tendance")
   trendingExpiresAt: number;        // timestamp ms
   lastPostEndedAt: number | null;   // pour calculer le decay (null = jamais posté)
+  badBuzzExpiresAt: number;         // timestamp ms (0 = pas de bad buzz actif)
 }
 
 // ---------------------------------------------------------------------------
