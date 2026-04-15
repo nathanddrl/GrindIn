@@ -186,7 +186,7 @@ function App() {
           </article>
 
           <article className="rounded-xl border border-[var(--linkedin-border)] bg-white p-4 shadow-[var(--linkedin-shadow)]">
-            <h2 className="text-base font-bold text-[var(--linkedin-text)]">Accellerez votre carriere</h2>
+            <h2 className="text-base font-bold text-[var(--linkedin-text)]">Accélérez votre carrière</h2>
             <ul className="mt-3 space-y-2 text-sm text-[var(--linkedin-text)]">
               {SACRIFICES_PLACEHOLDERS.map((sacrifice) => (
                 <li key={sacrifice} className="rounded-md bg-[var(--linkedin-page)] px-3 py-2">
