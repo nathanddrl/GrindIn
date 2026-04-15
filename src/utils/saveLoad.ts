@@ -41,8 +41,9 @@ export interface PersistedState {
 
 // Format stocké par Zustand persist sur le disque
 interface ZustandSave {
-  state:   PersistedState;
-  version: number;
+  state:    PersistedState;
+  version:  number;
+  savedAt?: number;
 }
 
 // Format enrichi pour l'export/import joueur
@@ -76,70 +77,71 @@ export type LoadResult =
 // Les migrations sont chaînées automatiquement dans `applyMigrations`.
 // ---------------------------------------------------------------------------
 
-type MigrateFn = (raw: unknown) => PersistedState;
+type MigrateFn = (state: PersistedState) => PersistedState;
 
 const MIGRATIONS: Map<number, MigrateFn> = new Map([
   // Exemple pour la version 2 :
-  // [2, (raw) => ({ ...(raw as PersistedState), newField: defaultValue })],
+  // [2, (state) => ({ ...state, newField: defaultValue })],
 ]);
 
-function applyMigrations(raw: unknown, fromVersion: number): PersistedState {
+function applyMigrations(raw: PersistedState, fromVersion: number): PersistedState {
   let state = raw;
   for (let v = fromVersion + 1; v <= SAVE_VERSION; v++) {
     const migrate = MIGRATIONS.get(v);
     if (migrate) state = migrate(state);
   }
-  return state as PersistedState;
+  return state;
 }
 
-function getPersistedStateDefaults(): Record<string, unknown> {
-  const currentState = useGameStore.getState() as unknown as Record<string, unknown>;
-  const defaults: Record<string, unknown> = {};
+function getPersistedStateDefaults(): PersistedState {
+  const s = useGameStore.getState();
+  return {
+    gamePhase:               s.gamePhase,
+    isBanned:                s.isBanned,
+    banRemainingSeconds:     s.banRemainingSeconds,
+    clicksPerRequest:        s.clicksPerRequest,
+    cycleDuration:           s.cycleDuration,
+    lastTickAt:              s.lastTickAt,
+    lastCycleAt:             s.lastCycleAt,
+    lastPostDecayAt:         s.lastPostDecayAt,
+    relations:               s.relations,
+    totalRelationsEarned:    s.totalRelationsEarned,
+    pendingRequests:         s.pendingRequests,
+    incomingRequests:        s.incomingRequests,
+    acceptanceRate:          s.acceptanceRate,
+    requestsProcessedPerCycle: s.requestsProcessedPerCycle,
+  };
+}
 
-  for (const [key, value] of Object.entries(currentState)) {
-    if (typeof value !== 'function') {
-      defaults[key] = value;
-    }
-  }
-
-  return defaults;
+// Extrait une valeur du candidat brut si son type correspond au défaut, sinon retourne le défaut.
+// Le `as T` est justifié par le guard `typeof val === typeof def` juste avant.
+function pickField<T>(c: Record<string, unknown>, key: string, def: T): T {
+  const val = c[key];
+  return typeof val === typeof def ? (val as T) : def;
 }
 
 function normalizePersistedState(raw: unknown): PersistedState | null {
   if (typeof raw !== 'object' || raw === null) return null;
 
-  const candidate = raw as Record<string, unknown>;
-  const defaults = getPersistedStateDefaults();
-  const normalized: Record<string, unknown> = { ...defaults };
+  const c = raw as Record<string, unknown>;
+  const d = getPersistedStateDefaults();
 
-  for (const [key, defaultValue] of Object.entries(defaults)) {
-    if (!(key in candidate)) continue;
-
-    const value = candidate[key];
-
-    if (defaultValue === null) {
-      if (value === null || value !== undefined) normalized[key] = value;
-      continue;
-    }
-
-    if (Array.isArray(defaultValue)) {
-      if (Array.isArray(value)) normalized[key] = value;
-      continue;
-    }
-
-    if (typeof defaultValue === 'object') {
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        normalized[key] = value;
-      }
-      continue;
-    }
-
-    if (typeof value === typeof defaultValue) {
-      normalized[key] = value;
-    }
-  }
-
-  return normalized as unknown as PersistedState;
+  return {
+    gamePhase:               pickField(c, 'gamePhase',               d.gamePhase),
+    isBanned:                pickField(c, 'isBanned',                d.isBanned),
+    banRemainingSeconds:     pickField(c, 'banRemainingSeconds',     d.banRemainingSeconds),
+    clicksPerRequest:        pickField(c, 'clicksPerRequest',        d.clicksPerRequest),
+    cycleDuration:           pickField(c, 'cycleDuration',           d.cycleDuration),
+    lastTickAt:              pickField(c, 'lastTickAt',              d.lastTickAt),
+    lastCycleAt:             pickField(c, 'lastCycleAt',             d.lastCycleAt),
+    lastPostDecayAt:         pickField(c, 'lastPostDecayAt',         d.lastPostDecayAt),
+    relations:               pickField(c, 'relations',               d.relations),
+    totalRelationsEarned:    pickField(c, 'totalRelationsEarned',    d.totalRelationsEarned),
+    pendingRequests:         pickField(c, 'pendingRequests',         d.pendingRequests),
+    incomingRequests:        pickField(c, 'incomingRequests',        d.incomingRequests),
+    acceptanceRate:          pickField(c, 'acceptanceRate',          d.acceptanceRate),
+    requestsProcessedPerCycle: pickField(c, 'requestsProcessedPerCycle', d.requestsProcessedPerCycle),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -166,13 +168,12 @@ function isValidPersistedState(obj: unknown): obj is PersistedState {
   const normalized = normalizePersistedState(s);
   if (!normalized) return false;
 
-  const n = normalized as unknown as Record<string, unknown>;
   const isValid =
-    typeof n.relations            === 'number' &&
-    typeof n.totalRelationsEarned === 'number' &&
-    typeof n.gamePhase            === 'string' &&
-    typeof n.acceptanceRate       === 'number' &&
-    typeof n.cycleDuration        === 'number';
+    typeof normalized.relations            === 'number' &&
+    typeof normalized.totalRelationsEarned === 'number' &&
+    typeof normalized.gamePhase            === 'string' &&
+    typeof normalized.acceptanceRate       === 'number' &&
+    typeof normalized.cycleDuration        === 'number';
 
   if (!isValid) return false;
 
@@ -188,8 +189,9 @@ function readRaw(): { data: ZustandSave; raw: string } | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const data = JSON.parse(raw) as ZustandSave;
-    if (typeof data !== 'object' || data === null) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null) return null;
+    const data = parsed as ZustandSave;
     return { data, raw };
   } catch {
     return null;
@@ -216,7 +218,7 @@ export function getSaveMetadata(): SaveMetadata | null {
   const s = data.state ?? {};
   return {
     version:              data.version           ?? 0,
-    savedAt:              (data as unknown as Record<string, unknown>).savedAt as number | null ?? null,
+    savedAt:              data.savedAt ?? null,
     relations:            (s as PersistedState).relations            ?? 0,
     totalRelationsEarned: (s as PersistedState).totalRelationsEarned ?? 0,
     gamePhase:            (s as PersistedState).gamePhase            ?? 'playing',
@@ -281,7 +283,7 @@ export function loadGame(): LoadResult {
 
   const { data } = entry;
   const storedVersion = data.version ?? 0;
-  const savedAt = (data as unknown as Record<string, unknown>).savedAt as number | null ?? Date.now();
+  const savedAt = data.savedAt ?? Date.now();
 
   // Migration si nécessaire
   let state: PersistedState;
@@ -361,7 +363,11 @@ export function importSave(encoded: string): LoadResult {
   let parsed: SaveExport;
 
   try {
-    parsed = JSON.parse(decodeURIComponent(atob(encoded.trim()))) as SaveExport;
+    const raw: unknown = JSON.parse(decodeURIComponent(atob(encoded.trim())));
+    if (typeof raw !== 'object' || raw === null) {
+      return { ok: false, error: 'Chaîne d\'import invalide ou corrompue.' };
+    }
+    parsed = raw as SaveExport;
   } catch {
     return { ok: false, error: 'Chaîne d\'import invalide ou corrompue.' };
   }
