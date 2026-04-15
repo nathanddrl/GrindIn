@@ -16,6 +16,10 @@ export interface ConnectionsState {
   incomingRequests: number;       // clicker secondaire — demandes reçues en attente
   acceptanceRate: number;         // taux calculé en % (base: 10, max: 95)
   requestsProcessedPerCycle: number; // base: 10 + contribution pyramide
+
+  // Résultat du dernier cycle — UI uniquement, non persisté
+  cycleLastResult: CycleResult | null;
+  cycleLastResultAt: number;      // timestamp ms, 0 = jamais
 }
 
 // ---------------------------------------------------------------------------
@@ -78,6 +82,8 @@ export const createConnectionsSlice: StateCreator<
   incomingRequests: 0,
   acceptanceRate: GAME_CONSTANTS.BASE_ACCEPTANCE_RATE,
   requestsProcessedPerCycle: GAME_CONSTANTS.BASE_REQUESTS_PER_CYCLE,
+  cycleLastResult: null,
+  cycleLastResultAt: 0,
 
   // --- actions ---
 
@@ -101,16 +107,22 @@ export const createConnectionsSlice: StateCreator<
     const { pendingRequests, requestsProcessedPerCycle, acceptanceRate } = get();
 
     const processed = Math.min(pendingRequests, requestsProcessedPerCycle);
-    const accepted  = Math.round(processed * (acceptanceRate / 100));
+    let accepted = 0;
+    for (let i = 0; i < processed; i++) {
+      if (Math.random() * 100 < acceptanceRate) accepted++;
+    }
     const rejected  = processed - accepted;
+    const result: CycleResult = { accepted, rejected, processed };
 
     set((s) => ({
-      pendingRequests:     s.pendingRequests - processed,
-      relations:           s.relations + accepted,
+      pendingRequests:      s.pendingRequests - processed,
+      relations:            s.relations + accepted,
       totalRelationsEarned: s.totalRelationsEarned + accepted,
+      cycleLastResult:      result,
+      cycleLastResultAt:    Date.now(),
     }));
 
-    return { accepted, rejected, processed };
+    return result;
   },
 
   addRelations: (amount) =>
