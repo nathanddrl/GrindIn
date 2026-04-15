@@ -20,7 +20,7 @@ export interface MindsetActions {
   /**
    * Appelé à chaque UI tick (100ms).
    * Complète les formations dont `endsAt <= now` et applique les `clicksBonus`.
-   * `formationSpeedDelta` est le delta % issu des sacrifices actifs (ex: -30 pour burnout).
+   * La durée réelle est fixée à l'achat via `buyFormation` (malus burnout inclus).
    */
   tickFormations: (now: number) => void;
 
