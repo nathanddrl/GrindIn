@@ -107,10 +107,10 @@ export const createConnectionsSlice: StateCreator<
     const { pendingRequests, requestsProcessedPerCycle, acceptanceRate } = get();
 
     const processed = Math.min(pendingRequests, requestsProcessedPerCycle);
-    let accepted = 0;
-    for (let i = 0; i < processed; i++) {
-      if (Math.random() * 100 < acceptanceRate) accepted++;
-    }
+    const p = acceptanceRate / 100;
+    const mean = processed * p;
+    const stddev = Math.sqrt(processed * p * (1 - p));
+    const accepted = Math.min(processed, Math.max(0, Math.round(mean + (Math.random() * 2 - 1) * stddev)));
     const rejected  = processed - accepted;
     const result: CycleResult = { accepted, rejected, processed };
 
