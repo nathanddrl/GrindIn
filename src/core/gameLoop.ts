@@ -163,6 +163,15 @@ export function applyOfflineProgress(opts: Pick<LoopCallbacks, 'onOfflineProgres
     store.processCycle();
   }
 
+  // Avancer les timestamps pour que tick() ne rejoue pas ces cycles
+  const { lastCycleAt } = useGameStore.getState();
+  const cycleMs = cycleDuration * 1000;
+  const newLastCycleAt = lastCycleAt + cyclesReplayed * cycleMs;
+  useGameStore.getState().updateTimestamps(now, {
+    lastTickAt: now,
+    lastCycleAt: newLastCycleAt,
+  });
+
   opts.onOfflineProgress?.(cyclesReplayed, offlineSec);
 }
 
